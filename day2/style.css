@@ -28,3 +28,41 @@ header h1 {
 header p {
   margin: 0 0 16px 0;
 }
+/* Nav links in a centred row */
+nav {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+}
+
+nav a {
+  color: white;
+  text-decoration: none;
+}
+
+/* Hover style so you can see which link you're on */
+nav a:hover {
+  text-decoration: underline;
+  color: #f1c40f;
+}
+/* Centre the main area with a max width */
+main {
+  max-width: 900px;
+  margin: 24px auto;
+  padding: 0 16px;
+}
+
+/* White card look for each section */
+section {
+  background-color: white;
+  padding: 16px;
+  margin-bottom: 16px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Footer */
+footer {
+  text-align: center;
+  padding: 16px;
+}
