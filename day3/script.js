@@ -47,18 +47,15 @@ console.log(longestNote()); // expected: null
 notes = savedNotes;
 // countByCategory: returns an object counting notes per category
 function countByCategory() {
-  const counts = {};
+  // Start every category at 0 so none are missing
+  const counts = { personal: 0, work: 0, study: 0 };
 
   for (let i = 0; i < notes.length; i++) {
-    const category = notes[i].category;
+    counts[notes[i].category] = counts[notes[i].category] + 1;
+  }
 
-    if (counts[category] === undefined) {
-      // first time we see this category, start at 1
-      counts[category] = 1;
-    } else {
-      // seen it before, add 1
-      counts[category] = counts[category] + 1;
-    }
+  return counts;
+}
   }
 
   return counts;
