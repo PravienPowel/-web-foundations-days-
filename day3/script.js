@@ -72,3 +72,82 @@ const savedNotes2 = notes;
 notes = [];
 console.log(countByCategory()); // expected: {} (empty object)
 notes = savedNotes2;
+// getSummary: returns a sentence like "5 notes: 2 personal, 1 work, 2 study."
+function getSummary() {
+  const counts = countByCategory();
+
+  // If a category has no notes it won't be in counts, so use 0 instead
+  const personal = counts.personal || 0;
+  const work = counts.work || 0;
+  const study = counts.study || 0;
+
+  // Use "note" for exactly one note, "notes" for everything else
+  let word = "notes";
+  if (notes.length === 1) {
+    word = "note";
+  }
+
+  return `${notes.length} ${word}: ${personal} personal, ${work} work, ${study} study.`;
+}
+
+// Tests for getSummary
+console.log(getSummary()); // expected: "5 notes: 2 personal, 1 work, 2 study."
+
+// Edge case: exactly one note
+const savedNotes3 = notes;
+notes = [notes[0]];
+console.log(getSummary()); // expected: "1 note: 1 personal, 0 work, 0 study."
+notes = savedNotes3;
+// isDuplicate: true if a note with the same text already exists
+// (ignores upper/lower case and extra spaces at the start and end)
+function isDuplicate(text) {
+  const cleaned = text.trim().toLowerCase();
+  return notes.some((note) => note.text.trim().toLowerCase() === cleaned);
+}
+
+// Tests for isDuplicate
+console.log(isDuplicate("call mum"));      // expected: true (same text, different case)
+console.log(isDuplicate("  CALL MUM  "));  // expected: true (extra spaces and capitals ignored)
+console.log(isDuplicate("Learn arrays"));  // expected: false (not in the list)
+// addNote: adds a note only if the text is 1-200 characters, not a duplicate,
+// and the category is personal, work or study.
+// Returns true when added, false otherwise (and logs the reason).
+function addNote(text, category) {
+  const cleaned = text.trim();
+
+  // Check the length
+  if (cleaned.length < 1 || cleaned.length > 200) {
+    console.log("Rejected: note must be 1-200 characters.");
+    return false;
+  }
+
+  // Check for a duplicate
+  if (isDuplicate(cleaned)) {
+    console.log("Rejected: that note already exists.");
+    return false;
+  }
+
+  // Check the category
+  const allowed = ["personal", "work", "study"];
+  if (!allowed.includes(category)) {
+    console.log("Rejected: category must be personal, work or study.");
+    return false;
+  }
+
+  // All good, add the note
+  notes.push({
+    id: Date.now(), // a simple unique id
+    text: cleaned,
+    category: category,
+  });
+  console.log("Added: " + cleaned);
+  return true;
+}
+
+// Tests for addNote
+console.log(addNote("Learn arrays", "study"));   // expected: Added message, then true
+console.log(addNote("call mum", "personal"));    // expected: Rejected (duplicate), then false
+console.log(addNote("   ", "work"));             // expected: Rejected (1-200 characters), then false
+console.log(addNote("a".repeat(201), "work"));   // expected: Rejected (1-200 characters), then false
+console.log(addNote("Pay rent", "holiday"));     // expected: Rejected (bad category), then false
+console.log(getSummary());                       // expected: "6 notes: 2 personal, 1 work, 3 study."
