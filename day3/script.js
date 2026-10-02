@@ -56,10 +56,6 @@ function countByCategory() {
 
   return counts;
 }
-  }
-
-  return counts;
-}
 
 // Tests for countByCategory
 console.log(countByCategory()); // expected: { personal: 2, study: 2, work: 1 }
