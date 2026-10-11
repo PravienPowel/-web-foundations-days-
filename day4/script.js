@@ -39,3 +39,47 @@ textarea.addEventListener("input", () => {
   updateCounts();
   localStorage.setItem(DRAFT_KEY, textarea.value); // save the draft
 });
+// ---------- 4. Restore the saved draft when the page loads ----------
+const savedDraft = localStorage.getItem(DRAFT_KEY);
+if (savedDraft !== null) {
+  textarea.value = savedDraft;
+}
+updateCounts();
+
+// ---------- 5. Clear everything ----------
+function clearAll() {
+  textarea.value = "";
+  localStorage.removeItem(DRAFT_KEY); // remove the saved draft
+  updateCounts();                     // counters go back to 0
+  textarea.focus();
+}
+
+// Clear button
+clearBtn.addEventListener("click", clearAll);
+
+// Escape key inside the textarea
+textarea.addEventListener("keydown", (event) => {
+  if (event.key === "Escape") {
+    clearAll();
+  }
+});
+// ---------- 6. Dark / light theme ----------
+// Restore the saved theme when the page loads
+if (localStorage.getItem(THEME_KEY) === "dark") {
+  document.body.classList.add("dark");
+  themeBtn.textContent = "Light mode";
+}
+
+// Switch theme when the button is clicked
+themeBtn.addEventListener("click", () => {
+  document.body.classList.toggle("dark"); // add the class if missing, remove it if there
+
+  // Change the button label and save the choice
+  if (document.body.classList.contains("dark")) {
+    themeBtn.textContent = "Light mode";
+    localStorage.setItem(THEME_KEY, "dark");
+  } else {
+    themeBtn.textContent = "Dark mode";
+    localStorage.setItem(THEME_KEY, "light");
+  }
+});
