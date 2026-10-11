@@ -1,0 +1,55 @@
+/* Colours stored as variables so the dark theme only changes these */
+:root {
+  --bg-color: #f2f4f8;
+  --text-color: #222222;
+  --box-color: #ffffff;
+  --border-color: #cccccc;
+  --button-color: #2c3e50;
+}
+
+/* Dark theme: same variable names, new colours */
+body.dark {
+  --bg-color: #1a1a2e;
+  --text-color: #eeeeee;
+  --box-color: #2b2b44;
+  --border-color: #555555;
+  --button-color: #4a6fa5;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  max-width: 600px;
+  margin: 24px auto;
+  padding: 0 16px;
+}
+
+textarea {
+  display: block;
+  width: 100%;
+  padding: 8px;
+  font-size: 1rem;
+  background-color: var(--box-color);
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
+}
+
+button {
+  background-color: var(--button-color);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+/* Counter warnings */
+.warning {
+  color: orange;
+}
+
+.over {
+  color: red;
+  font-weight: bold;
+}
