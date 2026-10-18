@@ -13,19 +13,35 @@ SnapShare lets users upload photos and scroll a feed of photos from people they 
 - Feed views: 1M x 50 = 50M per day / 100,000 = **500 per second** (peak **2,500**)
 - Storage: (2 MB + 50 KB) x 1M = 2.05 TB per day, about **750 TB per year**
 
-**Read-heavy:** 500 reads vs 10 writes per second (50 to 1). So we cache feeds, use a read replica, serve photos from a CDN, and do slow work (thumbnails) in the background. Storage grows fast because every upload is big.
+**Read-heavy:** 500 reads vs 10 writes per second (50 to 1). So we cache feeds, use a read replica, serve photos from a CDN, and do slow work (thumbnails) in the background.
+
+**Photos are not stored in the database.** A photo is a big file and a database is built for small rows, so 750 TB inside it would make it slow, make backups huge and cost a lot. Photos go in object storage; the database keeps only a link.
 
 ## Architecture
 ```
-Client --> DNS
-Client --> CDN --(miss)--> Object storage (photos + thumbnails)
-Client --> Load balancer --> App 1 | App 2 | App 3
-App --> Cache (Redis)
-App --writes--> Primary DB --copies--> Read replica <--reads-- App
-App --saves original photo--> Object storage
-App --adds job--> Queue --> Worker
-Worker --saves thumbnail--> Object storage
-Worker --saves thumbnail link--> Primary DB
+                    +-----+
+   Client --------> | DNS |
+     |              +-----+
+     | static files, photos         +-----+   miss   +----------------+
+     +----------------------------> | CDN | <------> | Object storage |
+     |                              +-----+          | (photo files)  |
+     | API calls (HTTPS)                             +----------------+
+     v                                                  ^        ^
+ +---------------+                                      |        |
+ | Load balancer |                                      |        |
+ +-------+-------+                                      |        |
+   +-----+-------+--------+                             |        |
+   v             v        v                             |        |
++-------+  +-------+  +-------+    +-------+             |        |
+| App 1 |  | App 2 |  | App 3 |--->| Cache |             |        |
++-------+  +-------+  +-------+    +-------+             |        |
+   | writes   | reads    | save original photo ----------+        |
+   v          v          | add job                                |
++---------+  +---------+ |   +-------+    +--------+              |
+| Primary |->| Replica | +-->| Queue |--->| Worker |--------------+
+|   DB    |  +---------+     +-------+    +---+----+   saves thumbnail
++----^----+                                   |
+     +---------- thumbnail link --------------+
 ```
 
 ## What each component does
@@ -56,6 +72,3 @@ Worker --saves thumbnail link--> Primary DB
 2. **Fast upload vs instant thumbnail (queue):** the reply is quick, but the thumbnail takes a few seconds. We show a placeholder.
 3. **Read replica lag:** a replica is slightly behind, so a new photo may not show for a moment. OK for photos, not for a bank balance.
 4. **Cost vs reliability:** 750 TB a year with copies and a CDN costs a lot but keeps the app fast and safe. Old photos can move to cheaper storage later.
-
-## Why photos are not stored in the database
-A photo is a big file, and a database is built for small rows. 750 TB inside it would make it slow, backups huge and costs high. Photos go in object storage; the database keeps only a link, and the CDN serves the files.
